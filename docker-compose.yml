@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  wiremock:
+    image: wiremock/wiremock:latest
+    container_name: wiremock-mock-api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./stubs:/home/wiremock
+    environment:
+      - JAVA_OPTS=-Dcom.github.tomakehurst.wiremock.standalone.WireMockServerRunner

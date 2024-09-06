@@ -67,6 +67,40 @@ Para configurar um ambiente virtual Python e instalar as dependências:
    deactivate
    ```
 
+## Subindo uma API Mock de Teste
+
+Você pode usar o **WireMock** para subir uma API mock de teste. Com **Docker Compose**, você pode facilmente subir e derrubar a API mock. Veja os passos abaixo:
+
+### Subir a API Mock:
+
+1. Execute o seguinte comando para subir a API mock em segundo plano:
+
+   ```bash
+   make docker-up
+   ```
+
+2. Agora, a API mock estará disponível em `http://localhost:8080`. Você pode testar um endpoint de exemplo com:
+
+   ```bash
+   curl http://localhost:8080/api/example
+   ```
+
+   Isso deverá retornar uma resposta mockada como:
+
+   ```json
+   {
+     "message": "This is a mocked response from WireMock!"
+   }
+   ```
+
+### Derrubar a API Mock:
+
+Para derrubar a API mock e parar o container, execute:
+
+```bash
+make docker-down
+```
+
 ## Contribuindo
 
 Contribuições são bem-vindas! Por favor, abra uma issue ou envie um pull request.

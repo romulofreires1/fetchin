@@ -9,3 +9,15 @@ format:
 
 test:
 	pytest tests/
+
+docker-up:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-build:
+	docker-compose build
+
+docker-logs:
+	docker-compose logs -f
