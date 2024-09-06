@@ -216,6 +216,40 @@ Para testar a execução do projeto e ver exemplos de uso no **playground**, exe
 make play
 ```
 
+## Publicação da Biblioteca no PyPI
+
+### Instalar as dependências necessárias para a publicação
+
+Execute o comando abaixo para instalar as dependências de build e upload para o PyPI:
+
+```bash
+pip install build twine
+```
+
+### Gerar os arquivos de distribuição
+
+Use o seguinte comando para gerar os arquivos de distribuição da biblioteca:
+
+```bash
+make build
+```
+
+### Publicar no TestPyPI (ambiente de teste)
+
+Para publicar a biblioteca no ambiente de teste do PyPI, execute:
+
+```bash
+make publish-test
+```
+
+### Publicar no PyPI oficial
+
+Quando estiver pronto para publicar oficialmente no PyPI, execute:
+
+```bash
+make publish
+```
+
 ## Contribuindo
 
 Contribuições são bem-vindas! Por favor, abra uma issue ou envie um pull request.
