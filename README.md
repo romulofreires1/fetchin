@@ -34,6 +34,39 @@ response = fetcher.get("https://api.example.com/data")
 print(response.json())
 ```
 
+## Configurando o Ambiente Virtual
+
+Para configurar um ambiente virtual Python e instalar as dependências:
+
+1. Crie o ambiente virtual:
+
+   ```bash
+   python3 -m venv venv
+   ```
+
+2. Ative o ambiente virtual:
+
+   - **Linux/macOS**:
+     ```bash
+     source venv/bin/activate
+     ```
+   - **Windows**:
+     ```bash
+     .\venv\Scripts\activate
+     ```
+
+3. Instale as dependências do projeto:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Para desativar o ambiente virtual, execute:
+
+   ```bash
+   deactivate
+   ```
+
 ## Contribuindo
 
 Contribuições são bem-vindas! Por favor, abra uma issue ou envie um pull request.
