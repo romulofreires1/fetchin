@@ -5,6 +5,8 @@ from http_utils.metrics.metrics_interface import MetricsInterface
 
 
 class Fetcher:
+    circuit_breakers = {}
+
     def __init__(
         self,
         label: str,
@@ -13,8 +15,8 @@ class Fetcher:
         circuit_config: dict = None,
         max_retries: int = 3,
     ):
-        self.logger = logger
         self.label = label
+        self.logger = logger
         self.max_retries = max_retries
 
         self.metrics = metrics if metrics else None
@@ -27,11 +29,16 @@ class Fetcher:
         if circuit_config:
             default_circuit_config.update(circuit_config)
 
-        self.circuit_breaker = pybreaker.CircuitBreaker(
-            fail_max=default_circuit_config["fail_max"],
-            reset_timeout=default_circuit_config["reset_timeout"],
-            state_storage=pybreaker.CircuitMemoryStorage(state=pybreaker.STATE_CLOSED),
-        )
+        if label not in Fetcher.circuit_breakers:
+            Fetcher.circuit_breakers[label] = pybreaker.CircuitBreaker(
+                fail_max=default_circuit_config["fail_max"],
+                reset_timeout=default_circuit_config["reset_timeout"],
+                state_storage=pybreaker.CircuitMemoryStorage(
+                    state=pybreaker.STATE_CLOSED
+                ),
+            )
+
+        self.circuit_breaker = Fetcher.circuit_breakers[label]
 
     def default_backoff_strategy(self, attempt: int):
         return 2**attempt

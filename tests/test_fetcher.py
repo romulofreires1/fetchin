@@ -23,6 +23,40 @@ class TestFetcher(unittest.TestCase):
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
+    
+    @patch('requests.request')
+    def test_circuit_sharing_between_fetchers(self, mock_request):
+        fetcher1 = Fetcher(label="shared_circuit", logger=CustomLogger(), metrics=PrometheusMetrics(), circuit_config=self.circuit_config)
+        fetcher2 = Fetcher(label="shared_circuit", logger=CustomLogger(), metrics=PrometheusMetrics(), circuit_config=self.circuit_config)
+
+        mock_request.side_effect = requests.exceptions.ConnectionError()
+
+        with self.assertRaises(CircuitBreakerError):
+            fetcher1.get("http://localhost:8080/api/example")
+
+        with self.assertRaises(CircuitBreakerError):
+            fetcher2.get("http://localhost:8080/api/example")
+
+    @patch('requests.request')
+    def test_circuit_independence_between_fetchers(self, mock_request):
+        fetcher1 = Fetcher(label="circuit_1", logger=CustomLogger(), metrics=PrometheusMetrics(), circuit_config=self.circuit_config)
+        fetcher2 = Fetcher(label="circuit_2", logger=CustomLogger(), metrics=PrometheusMetrics(), circuit_config=self.circuit_config)
+
+        mock_request.side_effect = requests.exceptions.ConnectionError()
+
+        with self.assertRaises(CircuitBreakerError):
+            fetcher1.get("http://localhost:8080/api/example")
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "success"}
+        mock_request.side_effect = None
+        mock_request.return_value = mock_response
+        
+        response = fetcher2.get("http://localhost:8080/api/example")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "success"})
+
     @patch('requests.request')
     def test_get_success(self, mock_request):
         fetcher = Fetcher(label="test_get_success", logger=self.logger, metrics=self.metrics, circuit_config=self.circuit_config)
