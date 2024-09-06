@@ -216,16 +216,6 @@ To test the project execution and see usage examples in the **playground**, run:
 make play
 ```
 
-## Publishing the Library to PyPI
-
-### Install the required dependencies for publishing
-
-Run the following command to install build and upload dependencies for PyPI:
-
-```bash
-pip install build twine
-```
-
 ### Generate Distribution Files
 
 Use the following command to generate the library distribution files:
@@ -234,21 +224,7 @@ Use the following command to generate the library distribution files:
 make build
 ```
 
-### Publish to TestPyPI (Test Environment)
 
-To publish the library to TestPyPI (test environment), run:
-
-```bash
-make publish-test
-```
-
-### Publish to Official PyPI
-
-When ready to publish officially to PyPI, run:
-
-```bash
-make publish
-```
 
 ## Contributing
 

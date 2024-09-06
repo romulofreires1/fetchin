@@ -7,7 +7,7 @@ name = "http-helper"  # O nome da sua biblioteca no PyPI
 version = "0.1.0"
 description = "Biblioteca para lidar com requisições HTTP com circuit breaker, logs e métricas."
 authors = [
-    { name = "Romulo Freires", email = "seuemail@example.com" }
+    { name = "Rômulo Freires",}
 ]
 readme = "README.md"
 requires-python = ">=3.6"
