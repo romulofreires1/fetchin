@@ -130,6 +130,84 @@ class TestFetcher(unittest.TestCase):
         response = fetcher.get("http://localhost:8080/api/example")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": "half-open success"})
+    
+    @patch('requests.request')
+    @patch.object(CustomLogger, 'info')
+    @patch.object(PrometheusMetrics, 'track_request')
+    def test_fetcher_with_logs_and_metrics(self, mock_track_request, mock_logger_info, mock_request):
+        fetcher = Fetcher(label="test_with_logs_and_metrics", logger=CustomLogger(), metrics=PrometheusMetrics(), circuit_config=self.circuit_config)
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "test"}
+        mock_request.return_value = mock_response
+
+        response = fetcher.get("http://localhost:8080/api/example")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "test"})
+
+        mock_logger_info.assert_called()
+        mock_track_request.assert_called()
+
+    @patch('requests.request')
+    @patch.object(CustomLogger, 'info')
+    @patch.object(PrometheusMetrics, 'track_request')
+    def test_fetcher_without_logs_and_metrics(self, mock_track_request, mock_logger_info, mock_request):
+        fetcher = Fetcher(label="test_without_logs_and_metrics", circuit_config=self.circuit_config)
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "test"}
+        mock_request.return_value = mock_response
+
+        response = fetcher.get("http://localhost:8080/api/example")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "test"})
+
+        mock_logger_info.assert_not_called()
+        mock_track_request.assert_not_called()
+
+    @patch('requests.request')
+    @patch.object(CustomLogger, 'info')
+    @patch.object(PrometheusMetrics, 'track_request')
+    def test_fetcher_with_logs_without_metrics(self, mock_track_request, mock_logger_info, mock_request):
+        fetcher = Fetcher(label="test_with_logs_no_metrics", logger=CustomLogger(), circuit_config=self.circuit_config)
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "test"}
+        mock_request.return_value = mock_response
+
+        response = fetcher.get("http://localhost:8080/api/example")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "test"})
+
+        mock_logger_info.assert_called()
+        mock_track_request.assert_not_called()
+
+    @patch('requests.request')
+    @patch.object(CustomLogger, 'info')
+    @patch.object(PrometheusMetrics, 'track_request')
+    def test_fetcher_without_logs_with_metrics(self, mock_track_request, mock_logger_info, mock_request):
+        fetcher = Fetcher(label="test_no_logs_with_metrics", metrics=PrometheusMetrics(), circuit_config=self.circuit_config)
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "test"}
+        mock_request.return_value = mock_response
+
+        response = fetcher.get("http://localhost:8080/api/example")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "test"})
+
+        mock_logger_info.assert_not_called()
+        mock_track_request.assert_called()
+
+    
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

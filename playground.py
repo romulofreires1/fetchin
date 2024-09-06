@@ -3,6 +3,8 @@ from http_utils.fetcher.fetcher import Fetcher
 from prometheus_client import start_http_server
 import time
 
+from http_utils.metrics.prometheus_metrics import PrometheusMetrics
+
 logger = CustomLogger(extra_params={"app_name": "MyApp", "environment": "dev"})
 
 def linear_backoff(attempt: int):
@@ -21,7 +23,7 @@ def start_metrics_server(port=8000):
 if __name__ == "__main__":
     start_metrics_server()
 
-    fetcher = Fetcher(label="api-service", logger=logger, metrics=None, circuit_config=circuit_config)
+    fetcher = Fetcher(label="api-service", logger=logger, metrics=PrometheusMetrics(), circuit_config=circuit_config)
 
     while True:
         try:

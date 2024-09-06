@@ -37,6 +37,8 @@ pip install http-utils
 ```python
 from http_utils.logging.logger import CustomLogger
 from http_utils.fetcher.fetcher import Fetcher
+from http_utils.metrics.prometheus_metrics import PrometheusMetrics
+
 
 logger = CustomLogger()
 
@@ -51,7 +53,7 @@ circuit_config = {
 }
 
 # Criando um fetcher usando o logger e o Prometheus como sistema de métricas padrão
-fetcher = Fetcher(label="api-service", logger=logger, metrics=None, circuit_config=circuit_config, max_retries=5)
+fetcher = Fetcher(label="api-service", logger=logger, metrics=PrometheusMetrics(), circuit_config=circuit_config, max_retries=5)
 
 try:
     response = fetcher.get("http://localhost:8080/api/example")

@@ -1,16 +1,14 @@
 import requests
 import pybreaker
 import time
-from http_utils.logging.logger import CustomLogger
 from http_utils.metrics.metrics_interface import MetricsInterface
-from http_utils.metrics.prometheus_metrics import PrometheusMetrics
 
 
 class Fetcher:
     def __init__(
         self,
         label: str,
-        logger: CustomLogger,
+        logger=None,
         metrics: MetricsInterface = None,
         circuit_config: dict = None,
         max_retries: int = 3,
@@ -19,7 +17,7 @@ class Fetcher:
         self.label = label
         self.max_retries = max_retries
 
-        self.metrics = metrics if metrics else PrometheusMetrics()
+        self.metrics = metrics if metrics else None
 
         default_circuit_config = {
             "fail_max": 3,
@@ -38,8 +36,24 @@ class Fetcher:
     def default_backoff_strategy(self, attempt: int):
         return 2**attempt
 
+    def _log_info(self, message: str, extra=None):
+        if self.logger:
+            self.logger.info(message, extra=extra)
+
+    def _log_error(self, message: str, extra=None):
+        if self.logger:
+            self.logger.error(message, extra=extra)
+
+    def _track_request(self, method: str, status_code: int, response_time: float):
+        if self.metrics:
+            self.metrics.track_request(method, status_code, response_time)
+
+    def _track_retry(self, method: str):
+        if self.metrics:
+            self.metrics.track_retry(method)
+
     def _handle_request(self, method: str, url: str, **kwargs):
-        self.logger.info(
+        self._log_info(
             f"{method} to URL: {url}", extra={"url": url, "fetcher_label": self.label}
         )
         start_time = time.time()
@@ -49,13 +63,13 @@ class Fetcher:
             attempt += 1
             try:
                 if attempt > 1:
-                    self.metrics.track_retry(method)
+                    self._track_retry(method)
 
                 response = self.circuit_breaker.call(
                     requests.request, method, url, **kwargs
                 )
                 response_time = time.time() - start_time
-                self.logger.info(
+                self._log_info(
                     f"Response status: {response.status_code}",
                     extra={
                         "url": url,
@@ -63,14 +77,14 @@ class Fetcher:
                         "status_code": response.status_code,
                     },
                 )
-                self.metrics.track_request(method, response.status_code, response_time)
+                self._track_request(method, response.status_code, response_time)
 
                 if self.circuit_breaker.current_state == pybreaker.STATE_HALF_OPEN:
                     self.circuit_breaker.close()
 
                 return response
             except pybreaker.CircuitBreakerError as e:
-                self.logger.error(
+                self._log_error(
                     f"Circuit breaker open: {e}",
                     extra={
                         "url": url,
@@ -78,10 +92,10 @@ class Fetcher:
                         "error_message": str(e),
                     },
                 )
-                self.metrics.track_request(method, 500, 0)
+                self._track_request(method, 500, 0)
                 raise e
             except Exception as e:
-                self.logger.error(
+                self._log_error(
                     f"Attempt {attempt} failed: {e}",
                     extra={
                         "url": url,
