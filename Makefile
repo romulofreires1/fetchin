@@ -2,10 +2,10 @@ install:
 	pip install -r requirements.txt
 
 lint:
-	flake8 http_helper
+	flake8 src/http_helper
 
 format:
-	black http_helper
+	black src/http_helper
 
 test:
 	pytest -v -s tests/
