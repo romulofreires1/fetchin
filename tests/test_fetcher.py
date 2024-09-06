@@ -1,4 +1,5 @@
 import logging
+import time
 import unittest
 from unittest.mock import patch, MagicMock
 from http_utils.fetcher.fetcher import Fetcher
@@ -16,7 +17,7 @@ class TestFetcher(unittest.TestCase):
 
         self.circuit_config = {
             "fail_max": 1,
-            "reset_timeout": 60,
+            "reset_timeout": 2,
         }
         
     def tearDown(self):
@@ -99,7 +100,7 @@ class TestFetcher(unittest.TestCase):
     def test_get_retry(self, mock_request):
         circuit_config = {
             "fail_max": 2,
-            "reset_timeout": 60,
+            "reset_timeout": 2,
         }
                 
         fetcher = Fetcher(label="test_get_retry", logger=self.logger, metrics=self.metrics, circuit_config=circuit_config)
@@ -112,6 +113,23 @@ class TestFetcher(unittest.TestCase):
         response = fetcher.get("http://localhost:8080/api/example")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": "test"})
+
+    @patch('requests.request')
+    def test_half_open_circuit(self, mock_request):
+        fetcher = Fetcher(label="test_half_open_circuit", logger=self.logger, metrics=self.metrics, circuit_config=self.circuit_config)
+
+        mock_request.side_effect = [
+            requests.exceptions.ConnectionError(),
+            MagicMock(status_code=200, json=lambda: {"data": "half-open success"})
+        ]
+
+        with self.assertRaises(CircuitBreakerError):
+            fetcher.get("http://localhost:8080/api/example")
+
+        time.sleep(2)
+        response = fetcher.get("http://localhost:8080/api/example")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "half-open success"})
 
 if __name__ == '__main__':
     unittest.main()

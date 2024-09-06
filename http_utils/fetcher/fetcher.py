@@ -32,6 +32,7 @@ class Fetcher:
         self.circuit_breaker = pybreaker.CircuitBreaker(
             fail_max=default_circuit_config["fail_max"],
             reset_timeout=default_circuit_config["reset_timeout"],
+            state_storage=pybreaker.CircuitMemoryStorage(state=pybreaker.STATE_CLOSED),
         )
 
     def default_backoff_strategy(self, attempt: int):
@@ -49,6 +50,7 @@ class Fetcher:
             try:
                 if attempt > 1:
                     self.metrics.track_retry(method)
+
                 response = self.circuit_breaker.call(
                     requests.request, method, url, **kwargs
                 )
@@ -62,6 +64,10 @@ class Fetcher:
                     },
                 )
                 self.metrics.track_request(method, response.status_code, response_time)
+
+                if self.circuit_breaker.current_state == pybreaker.STATE_HALF_OPEN:
+                    self.circuit_breaker.close()
+
                 return response
             except pybreaker.CircuitBreakerError as e:
                 self.logger.error(
@@ -83,6 +89,10 @@ class Fetcher:
                         "error_message": str(e),
                     },
                 )
+
+                if self.circuit_breaker.current_state == pybreaker.STATE_HALF_OPEN:
+                    self.circuit_breaker.open()
+
                 if attempt == self.max_retries:
                     raise e
                 time.sleep(self.default_backoff_strategy(attempt))
