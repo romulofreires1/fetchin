@@ -1,1 +1,1 @@
-# Initialization of tests for http-utils
+# Initialization of tests for http-helper

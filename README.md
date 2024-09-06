@@ -1,7 +1,7 @@
 
-# http-utils
+# http-helper
 
-**http-utils** é uma biblioteca eficiente para lidar com requisições HTTP em Python. Ela oferece um logger customizado para monitorar o tráfego HTTP, um modelo de métricas para rastrear o desempenho das requisições, e um fetcher para facilitar as chamadas HTTP. Esta biblioteca é ideal para desenvolvedores que desejam maior controle e visibilidade sobre suas requisições HTTP e métricas de performance.
+**http-helper** é uma biblioteca eficiente para lidar com requisições HTTP em Python. Ela oferece um logger customizado para monitorar o tráfego HTTP, um modelo de métricas para rastrear o desempenho das requisições, e um fetcher para facilitar as chamadas HTTP. Esta biblioteca é ideal para desenvolvedores que desejam maior controle e visibilidade sobre suas requisições HTTP e métricas de performance.
 
 ## Funcionalidades
 
@@ -27,7 +27,7 @@ O `Fetcher` aceita os seguintes parâmetros ao ser instanciado:
 Instale via pip:
 
 ```bash
-pip install http-utils
+pip install http-helper
 ```
 
 ## Exemplo de Uso
@@ -35,9 +35,9 @@ pip install http-utils
 ### Exemplo básico com Prometheus (implementação padrão)
 
 ```python
-from http_utils.logging.logger import CustomLogger
-from http_utils.fetcher.fetcher import Fetcher
-from http_utils.metrics.prometheus_metrics import PrometheusMetrics
+from http_helper.logging.logger import CustomLogger
+from http_helper.fetcher.fetcher import Fetcher
+from http_helper.metrics.prometheus_metrics import PrometheusMetrics
 
 
 logger = CustomLogger()
@@ -67,9 +67,9 @@ except Exception as e:
 Você também pode fornecer sua própria implementação de métricas. Basta implementar a interface `MetricsInterface`.
 
 ```python
-from http_utils.logging.logger import CustomLogger
-from http_utils.metrics.metrics_interface import MetricsInterface
-from http_utils.fetcher.fetcher import Fetcher
+from http_helper.logging.logger import CustomLogger
+from http_helper.metrics.metrics_interface import MetricsInterface
+from http_helper.fetcher.fetcher import Fetcher
 
 class CustomMetrics(MetricsInterface):
     def track_request(self, method: str, status_code: int, response_time: float):

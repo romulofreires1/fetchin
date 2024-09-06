@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "http-helper"  # O nome da sua biblioteca no PyPI
+version = "0.1.0"
+description = "Biblioteca para lidar com requisições HTTP com circuit breaker, logs e métricas."
+authors = [
+    { name = "Romulo Freires", email = "seuemail@example.com" }
+]
+readme = "README.md"
+requires-python = ">=3.6"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "requests==2.32.3",
+    "pybreaker==1.2.0",
+    "prometheus-client==0.20.0",
+]
+
+[tool.black]
+line-length = 88
+
+[tool.flake8]
+max-line-length = 88
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "flake8",
+    "pytest"
+]

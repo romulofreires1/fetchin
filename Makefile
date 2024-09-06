@@ -2,10 +2,10 @@ install:
 	pip install -r requirements.txt
 
 lint:
-	flake8 http_utils
+	flake8 http_helper
 
 format:
-	black http_utils
+	black http_helper
 
 test:
 	pytest -v -s tests/
@@ -23,4 +23,17 @@ docker-logs:
 	docker-compose logs -f
 
 play:
-	python playground.py 
+	python playground.py
+
+build:
+	python -m build
+
+publish-test:
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+publish:
+	twine upload dist/*
+
+# Limpar arquivos temporários de build
+clean:
+	rm -rf dist/ build/ *.egg-info
