@@ -1,7 +1,7 @@
 
-# http-helper
+# fetchin
 
-**http-helper** is an efficient library for handling HTTP requests in Python. It provides a custom logger to monitor HTTP traffic, a metrics model to track request performance, and a fetcher to simplify HTTP requests. This library is ideal for developers who want greater control and visibility over their HTTP requests and performance metrics.
+**fetchin** is an efficient library for handling HTTP requests in Python. It provides a custom logger to monitor HTTP traffic, a metrics model to track request performance, and a fetcher to simplify HTTP requests. This library is ideal for developers who want greater control and visibility over their HTTP requests and performance metrics.
 
 ## Features
 
@@ -27,7 +27,7 @@ The `Fetcher` accepts the following parameters during instantiation:
 Install via pip:
 
 ```bash
-pip install http-helper
+pip install fetchin
 ```
 
 ## Example Usage
@@ -35,9 +35,9 @@ pip install http-helper
 ### Basic Example with Prometheus (default implementation)
 
 ```python
-from src.http_helper.logging.logger import CustomLogger
-from src.http_helper.fetcher.fetcher import Fetcher
-from src.http_helper.metrics.prometheus_metrics import PrometheusMetrics
+from src.fetchin.logging.logger import CustomLogger
+from src.fetchin.fetcher.fetcher import Fetcher
+from src.fetchin.metrics.prometheus_metrics import PrometheusMetrics
 
 
 logger = CustomLogger()
@@ -67,9 +67,9 @@ except Exception as e:
 You can also provide your own metrics implementation. Simply implement the `MetricsInterface`.
 
 ```python
-from src.http_helper.logging.logger import CustomLogger
-from src.http_helper.metrics.metrics_interface import MetricsInterface
-from src.http_helper.fetcher.fetcher import Fetcher
+from src.fetchin.logging.logger import CustomLogger
+from src.fetchin.metrics.metrics_interface import MetricsInterface
+from src.fetchin.fetcher.fetcher import Fetcher
 
 class CustomMetrics(MetricsInterface):
     def track_request(self, method: str, status_code: int, response_time: float):

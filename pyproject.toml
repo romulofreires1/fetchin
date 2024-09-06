@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 where = ["src"]
 
 [project]
-name = "http-helper"  # O nome da sua biblioteca no PyPI
+name = "fetchin"  # O nome da sua biblioteca no PyPI
 version = "0.1.0"
 description = "Biblioteca para lidar com requisições HTTP com circuit breaker, logs e métricas."
 authors = [

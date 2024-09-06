@@ -1,4 +1,4 @@
-name: CI
+name: Quality Checks
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - '**'
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,36 +41,3 @@ jobs:
         run: |
           source venv/bin/activate
           make test
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
-
-      - name: Install build and twine
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install build twine
-
-      - name: Build package
-        run: |
-          source venv/bin/activate
-          python -m build
-
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          source venv/bin/activate
-          twine upload dist/*

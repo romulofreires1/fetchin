@@ -2,9 +2,9 @@ import logging
 import time
 import unittest
 from unittest.mock import patch, MagicMock
-from src.http_helper.fetcher.fetcher import Fetcher
-from src.http_helper.logging.logger import CustomLogger
-from src.http_helper.metrics.prometheus_metrics import PrometheusMetrics
+from src.fetchin.fetcher.fetcher import Fetcher
+from src.fetchin.logging.logger import CustomLogger
+from src.fetchin.metrics.prometheus_metrics import PrometheusMetrics
 from pybreaker import CircuitBreakerError
 import requests
 

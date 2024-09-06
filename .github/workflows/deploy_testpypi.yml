@@ -1,0 +1,40 @@
+name: Deploy to TestPyPI
+
+on:
+  workflow_run:
+    workflows: ["Quality Checks"]
+    types:
+      - completed
+
+jobs:
+  deploy_testpypi:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install build and twine
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install build twine
+
+      - name: Build package
+        run: |
+          source venv/bin/activate
+          python -m build
+
+      - name: Publish to TestPyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+          source venv/bin/activate
+          twine upload --repository-url https://test.pypi.org/legacy/ dist/*

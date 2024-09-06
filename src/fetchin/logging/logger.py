@@ -3,7 +3,7 @@ import json
 
 
 class CustomLogger:
-    def __init__(self, name: str = "http-helper", extra_params: dict = None):
+    def __init__(self, name: str = "fetchin", extra_params: dict = None):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
 

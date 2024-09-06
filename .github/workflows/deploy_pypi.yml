@@ -1,0 +1,40 @@
+name: Deploy to PyPI
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  deploy_pypi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if quality workflow passed
+        run: |
+          gh run list --workflow=Quality --branch=main --limit=1 --json conclusion --jq '.[0].conclusion == "success"'
+    
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install build and twine
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install build twine
+
+      - name: Build package
+        run: |
+          source venv/bin/activate
+          python -m build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          source venv/bin/activate
+          twine upload dist/*
