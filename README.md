@@ -1,13 +1,26 @@
 
-# (Proposta em Construção) http-utils
+# http-utils
 
-**http-utils** é uma biblioteca simples e eficiente para lidar com requisições HTTP em Python. Ela oferece um logger customizado para monitorar o tráfego HTTP, um modelo de métricas customizado para rastrear o desempenho de requisições e um fetcher para facilitar as chamadas HTTP. Esta biblioteca é ideal para desenvolvedores que desejam ter maior controle e visibilidade sobre suas requisições HTTP e métricas de performance.
+**http-utils** é uma biblioteca eficiente para lidar com requisições HTTP em Python. Ela oferece um logger customizado para monitorar o tráfego HTTP, um modelo de métricas para rastrear o desempenho das requisições, e um fetcher para facilitar as chamadas HTTP. Esta biblioteca é ideal para desenvolvedores que desejam maior controle e visibilidade sobre suas requisições HTTP e métricas de performance.
 
 ## Funcionalidades
 
-- **Logger customizado**: Registra e acompanha detalhes das requisições HTTP e suas respostas de forma estruturada.
-- **Modelo de métricas customizado**: Colete métricas de desempenho de suas requisições, como tempo de resposta, status e outros dados úteis.
-- **Fetcher simples**: Facilita o envio de requisições HTTP (GET, POST, etc.), integrando-se facilmente ao sistema de métricas e logger.
+- **Logger customizado**: Registra detalhes das requisições HTTP e suas respostas de forma estruturada.
+- **Modelo de métricas**: Colete métricas como tempo de resposta, contagem de requisições e status HTTP.
+- **Fetcher**: Facilita o envio de requisições HTTP (GET, POST, etc.), com integração com o logger e sistema de métricas.
+
+## Parâmetros do Fetcher
+
+O `Fetcher` aceita os seguintes parâmetros ao ser instanciado:
+
+- **label (str)**: Um rótulo para identificar o fetcher. Fetchers com o mesmo rótulo compartilham o mesmo Circuit Breaker.
+- **logger (CustomLogger)**: Logger customizado para registrar as requisições.
+- **metrics (MetricsInterface)**: Sistema de métricas (opcional). Se não for passado, o Prometheus será usado por padrão.
+- **circuit_config (dict)**: Configurações do Circuit Breaker, incluindo:
+  - `fail_max`: Número máximo de falhas antes de abrir o Circuit Breaker.
+  - `reset_timeout`: Tempo em segundos para esperar antes de fechar o Circuit Breaker após uma falha.
+  - `backoff_strategy`: Estratégia de backoff para determinar o tempo de espera entre retries.
+- **max_retries (int)**: Número máximo de tentativas de repetição (retries) para uma requisição em caso de falha.
 
 ## Instalação
 
@@ -19,19 +32,61 @@ pip install http-utils
 
 ## Exemplo de Uso
 
+### Exemplo básico com Prometheus (implementação padrão)
+
 ```python
-from http_utils import Fetcher, CustomLogger, Metrics
+from http_utils.logging.logger import CustomLogger
+from http_utils.fetcher.fetcher import Fetcher
 
-# Configurando o logger e métricas
 logger = CustomLogger()
-metrics = Metrics()
 
-# Criando um fetcher
-fetcher = Fetcher(logger=logger, metrics=metrics)
+# Configuração do Circuit Breaker com estratégia de backoff linear
+def linear_backoff(attempt: int):
+    return attempt * 2
 
-# Fazendo uma requisição
-response = fetcher.get("https://api.example.com/data")
-print(response.json())
+circuit_config = {
+    "fail_max": 3,
+    "reset_timeout": 60,
+    "backoff_strategy": linear_backoff
+}
+
+# Criando um fetcher usando o logger e o Prometheus como sistema de métricas padrão
+fetcher = Fetcher(label="api-service", logger=logger, metrics=None, circuit_config=circuit_config, max_retries=5)
+
+try:
+    response = fetcher.get("http://localhost:8080/api/example")
+    print(response.json())
+except Exception as e:
+    logger.error(f"Error during fetch: {e}")
+```
+
+### Exemplo com implementação personalizada de métricas
+
+Você também pode fornecer sua própria implementação de métricas. Basta implementar a interface `MetricsInterface`.
+
+```python
+from http_utils.logging.logger import CustomLogger
+from http_utils.metrics.metrics_interface import MetricsInterface
+from http_utils.fetcher.fetcher import Fetcher
+
+class CustomMetrics(MetricsInterface):
+    def track_request(self, method: str, status_code: int, response_time: float):
+        print(f"Custom Metrics -> Method: {method}, Status: {status_code}, Time: {response_time:.2f}s")
+    
+    def track_retry(self, method: str):
+        print(f"Custom Retry -> Method: {method}")
+
+logger = CustomLogger()
+metrics = CustomMetrics()
+
+# Criando um fetcher com implementação personalizada de métricas
+fetcher = Fetcher(label="api-service", logger=logger, metrics=metrics, max_retries=3)
+
+try:
+    response = fetcher.get("http://localhost:8080/api/example")
+    print(response.json())
+except Exception as e:
+    logger.error(f"Error during fetch: {e}")
 ```
 
 ## Configurando o Ambiente Virtual

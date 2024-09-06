@@ -1,7 +1,9 @@
 import requests
+from http_utils.metrics.metrics_interface import MetricsInterface
+from http_utils.metrics.prometheus_metrics import PrometheusMetrics
 import pybreaker
+import time
 from http_utils.logging.logger import CustomLogger
-from http_utils.metrics.metrics import CustomMetrics
 
 
 class CircuitBreakerRegistry:
@@ -30,11 +32,12 @@ class Fetcher:
         self,
         label: str,
         logger: CustomLogger,
-        metrics: CustomMetrics,
+        metrics: MetricsInterface = None,
         circuit_config: dict = None,
     ):
         self.logger = logger
-        self.metrics = metrics
+
+        self.metrics = metrics if metrics else PrometheusMetrics()
 
         default_circuit_config = {
             "fail_max": 3,
@@ -53,31 +56,44 @@ class Fetcher:
         )
 
     def default_backoff_strategy(self, attempt: int):
-        """
-        Exponential backoff strategy (2^attempt) to control retry intervals
-        """
         return 2**attempt
 
     def get(self, url: str):
         self.logger.info(f"Fetching URL: {url}")
-        self.metrics.start_timer("GET Request")
-        try:
-            response = self.circuit_breaker.call(requests.get, url)
-            self.logger.info(f"Response status: {response.status_code}")
-            return response
-        except pybreaker.CircuitBreakerError as e:
-            self.logger.error(f"Circuit breaker open: {e}")
-        finally:
-            self.metrics.stop_timer("GET Request")
+        start_time = time.time()
+        attempt = 0
+
+        while True:
+            attempt += 1
+            try:
+                if attempt > 1:
+                    self.metrics.track_retry("GET")
+                response = self.circuit_breaker.call(requests.get, url)
+                response_time = time.time() - start_time
+                self.logger.info(f"Response status: {response.status_code}")
+                self.metrics.track_request("GET", response.status_code, response_time)
+                return response
+            except pybreaker.CircuitBreakerError as e:
+                self.logger.error(f"Circuit breaker open: {e}")
+                self.metrics.track_request("GET", 500, 0)
+                break
 
     def post(self, url: str, data: dict):
         self.logger.info(f"Posting to URL: {url}")
-        self.metrics.start_timer("POST Request")
-        try:
-            response = self.circuit_breaker.call(requests.post, url, json=data)
-            self.logger.info(f"Response status: {response.status_code}")
-            return response
-        except pybreaker.CircuitBreakerError as e:
-            self.logger.error(f"Circuit breaker open: {e}")
-        finally:
-            self.metrics.stop_timer("POST Request")
+        start_time = time.time()
+        attempt = 0
+
+        while True:
+            attempt += 1
+            try:
+                if attempt > 1:
+                    self.metrics.track_retry("POST")
+                response = self.circuit_breaker.call(requests.post, url, json=data)
+                response_time = time.time() - start_time
+                self.logger.info(f"Response status: {response.status_code}")
+                self.metrics.track_request("POST", response.status_code, response_time)
+                return response
+            except pybreaker.CircuitBreakerError as e:
+                self.logger.error(f"Circuit breaker open: {e}")
+                self.metrics.track_request("POST", 500, 0)
+                break
