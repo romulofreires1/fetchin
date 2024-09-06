@@ -2,12 +2,15 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [project]
 name = "http-helper"  # O nome da sua biblioteca no PyPI
 version = "0.1.0"
 description = "Biblioteca para lidar com requisições HTTP com circuit breaker, logs e métricas."
 authors = [
-    { name = "Rômulo Freires",}
+    { name = "Rômulo Freires"}
 ]
 readme = "README.md"
 requires-python = ">=3.6"

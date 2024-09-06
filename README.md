@@ -35,9 +35,9 @@ pip install http-helper
 ### Basic Example with Prometheus (default implementation)
 
 ```python
-from http_helper.logging.logger import CustomLogger
-from http_helper.fetcher.fetcher import Fetcher
-from http_helper.metrics.prometheus_metrics import PrometheusMetrics
+from src.http_helper.logging.logger import CustomLogger
+from src.http_helper.fetcher.fetcher import Fetcher
+from src.http_helper.metrics.prometheus_metrics import PrometheusMetrics
 
 
 logger = CustomLogger()
@@ -67,9 +67,9 @@ except Exception as e:
 You can also provide your own metrics implementation. Simply implement the `MetricsInterface`.
 
 ```python
-from http_helper.logging.logger import CustomLogger
-from http_helper.metrics.metrics_interface import MetricsInterface
-from http_helper.fetcher.fetcher import Fetcher
+from src.http_helper.logging.logger import CustomLogger
+from src.http_helper.metrics.metrics_interface import MetricsInterface
+from src.http_helper.fetcher.fetcher import Fetcher
 
 class CustomMetrics(MetricsInterface):
     def track_request(self, method: str, status_code: int, response_time: float):

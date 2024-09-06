@@ -1,5 +1,5 @@
 import unittest
-from http_helper.logging.logger import CustomLogger
+from src.http_helper.logging.logger import CustomLogger
 from io import StringIO
 import logging
 

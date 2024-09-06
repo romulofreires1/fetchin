@@ -1,9 +1,9 @@
-from http_helper.logging.logger import CustomLogger
-from http_helper.fetcher.fetcher import Fetcher
+from src.http_helper.logging.logger import CustomLogger
+from src.http_helper.fetcher.fetcher import Fetcher
 from prometheus_client import start_http_server
 import time
 
-from http_helper.metrics.prometheus_metrics import PrometheusMetrics
+from src.http_helper.metrics.prometheus_metrics import PrometheusMetrics
 
 logger = CustomLogger(extra_params={"app_name": "MyApp", "environment": "dev"})
 

@@ -1,5 +1,5 @@
 import unittest
-from http_helper.metrics.prometheus_metrics import PrometheusMetrics
+from src.http_helper.metrics.prometheus_metrics import PrometheusMetrics
 from prometheus_client import CollectorRegistry, generate_latest
 
 class TestPrometheusMetrics(unittest.TestCase):
