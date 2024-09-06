@@ -1,38 +1,38 @@
 
 # http-helper
 
-**http-helper** é uma biblioteca eficiente para lidar com requisições HTTP em Python. Ela oferece um logger customizado para monitorar o tráfego HTTP, um modelo de métricas para rastrear o desempenho das requisições, e um fetcher para facilitar as chamadas HTTP. Esta biblioteca é ideal para desenvolvedores que desejam maior controle e visibilidade sobre suas requisições HTTP e métricas de performance.
+**http-helper** is an efficient library for handling HTTP requests in Python. It provides a custom logger to monitor HTTP traffic, a metrics model to track request performance, and a fetcher to simplify HTTP requests. This library is ideal for developers who want greater control and visibility over their HTTP requests and performance metrics.
 
-## Funcionalidades
+## Features
 
-- **Logger customizado**: Registra detalhes das requisições HTTP e suas respostas de forma estruturada.
-- **Modelo de métricas**: Colete métricas como tempo de resposta, contagem de requisições e status HTTP.
-- **Fetcher**: Facilita o envio de requisições HTTP (GET, POST, etc.), com integração com o logger e sistema de métricas.
+- **Custom Logger**: Logs HTTP request details and their responses in a structured way.
+- **Metrics Model**: Collect metrics such as response time, request count, and HTTP status.
+- **Fetcher**: Simplifies sending HTTP requests (GET, POST, etc.) with integrated logging and metrics system.
 
-## Parâmetros do Fetcher
+## Fetcher Parameters
 
-O `Fetcher` aceita os seguintes parâmetros ao ser instanciado:
+The `Fetcher` accepts the following parameters during instantiation:
 
-- **label (str)**: Um rótulo para identificar o fetcher. Fetchers com o mesmo rótulo compartilham o mesmo Circuit Breaker.
-- **logger (CustomLogger)**: Logger customizado para registrar as requisições.
-- **metrics (MetricsInterface)**: Sistema de métricas (opcional). Se não for passado, o Prometheus será usado por padrão.
-- **circuit_config (dict)**: Configurações do Circuit Breaker, incluindo:
-  - `fail_max`: Número máximo de falhas antes de abrir o Circuit Breaker.
-  - `reset_timeout`: Tempo em segundos para esperar antes de fechar o Circuit Breaker após uma falha.
-  - `backoff_strategy`: Estratégia de backoff para determinar o tempo de espera entre retries.
-- **max_retries (int)**: Número máximo de tentativas de repetição (retries) para uma requisição em caso de falha.
+- **label (str)**: A label to identify the fetcher. Fetchers with the same label share the same Circuit Breaker.
+- **logger (CustomLogger)**: Custom logger to record requests.
+- **metrics (MetricsInterface)**: Metrics system (optional). If not passed, Prometheus will be used by default.
+- **circuit_config (dict)**: Circuit Breaker settings, including:
+  - `fail_max`: Maximum number of failures before opening the Circuit Breaker.
+  - `reset_timeout`: Time in seconds to wait before closing the Circuit Breaker after a failure.
+  - `backoff_strategy`: Backoff strategy to determine the wait time between retries.
+- **max_retries (int)**: Maximum number of retry attempts for a request in case of failure.
 
-## Instalação
+## Installation
 
-Instale via pip:
+Install via pip:
 
 ```bash
 pip install http-helper
 ```
 
-## Exemplo de Uso
+## Example Usage
 
-### Exemplo básico com Prometheus (implementação padrão)
+### Basic Example with Prometheus (default implementation)
 
 ```python
 from http_helper.logging.logger import CustomLogger
@@ -42,7 +42,7 @@ from http_helper.metrics.prometheus_metrics import PrometheusMetrics
 
 logger = CustomLogger()
 
-# Configuração do Circuit Breaker com estratégia de backoff linear
+# Circuit Breaker configuration with linear backoff strategy
 def linear_backoff(attempt: int):
     return attempt * 2
 
@@ -52,7 +52,7 @@ circuit_config = {
     "backoff_strategy": linear_backoff
 }
 
-# Criando um fetcher usando o logger e o Prometheus como sistema de métricas padrão
+# Create a fetcher using the logger and Prometheus as the default metrics system
 fetcher = Fetcher(label="api-service", logger=logger, metrics=PrometheusMetrics(), circuit_config=circuit_config, max_retries=5)
 
 try:
@@ -62,9 +62,9 @@ except Exception as e:
     logger.error(f"Error during fetch: {e}")
 ```
 
-### Exemplo com implementação personalizada de métricas
+### Example with Custom Metrics Implementation
 
-Você também pode fornecer sua própria implementação de métricas. Basta implementar a interface `MetricsInterface`.
+You can also provide your own metrics implementation. Simply implement the `MetricsInterface`.
 
 ```python
 from http_helper.logging.logger import CustomLogger
@@ -81,7 +81,7 @@ class CustomMetrics(MetricsInterface):
 logger = CustomLogger()
 metrics = CustomMetrics()
 
-# Criando um fetcher com implementação personalizada de métricas
+# Create a fetcher with a custom metrics implementation
 fetcher = Fetcher(label="api-service", logger=logger, metrics=metrics, max_retries=3)
 
 try:
@@ -91,17 +91,17 @@ except Exception as e:
     logger.error(f"Error during fetch: {e}")
 ```
 
-## Configurando o Ambiente Virtual
+## Setting up the Virtual Environment
 
-Para configurar um ambiente virtual Python e instalar as dependências:
+To set up a Python virtual environment and install dependencies:
 
-1. Crie o ambiente virtual:
+1. Create the virtual environment:
 
    ```bash
    python3 -m venv venv
    ```
 
-2. Ative o ambiente virtual:
+2. Activate the virtual environment:
 
    - **Linux/macOS**:
      ```bash
@@ -112,37 +112,37 @@ Para configurar um ambiente virtual Python e instalar as dependências:
      .\venv\Scripts\activate
      ```
 
-3. Instale as dependências do projeto:
+3. Install project dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Para desativar o ambiente virtual, execute:
+4. To deactivate the virtual environment, run:
 
    ```bash
    deactivate
    ```
 
-## Subindo uma API Mock de Teste
+## Running a Mock API for Testing
 
-Você pode usar o **WireMock** para subir uma API mock de teste. Com **Docker Compose**, você pode facilmente subir e derrubar a API mock. Veja os passos abaixo:
+You can use **WireMock** to run a mock API for testing. With **Docker Compose**, you can easily start and stop the mock API. Follow these steps:
 
-### Subir a API Mock:
+### Start the Mock API:
 
-1. Execute o seguinte comando para subir a API mock em segundo plano:
+1. Run the following command to start the mock API in the background:
 
    ```bash
    make docker-up
    ```
 
-2. Agora, a API mock estará disponível em `http://localhost:8080`. Você pode testar um endpoint de exemplo com:
+2. The mock API will now be available at `http://localhost:8080`. You can test an example endpoint with:
 
    ```bash
    curl http://localhost:8080/api/example
    ```
 
-   Isso deverá retornar uma resposta mockada como:
+   This should return a mocked response like:
 
    ```json
    {
@@ -150,59 +150,59 @@ Você pode usar o **WireMock** para subir uma API mock de teste. Com **Docker Co
    }
    ```
 
-### Derrubar a API Mock:
+### Stop the Mock API:
 
-Para derrubar a API mock e parar o container, execute:
+To stop the mock API and stop the container, run:
 
 ```bash
 make docker-down
 ```
 
-## Comandos adicionais no Makefile
+## Additional Makefile Commands
 
-### Instalar dependências
+### Install Dependencies
 
-Para instalar as dependências do projeto, execute:
+To install the project dependencies, run:
 
 ```bash
 make install
 ```
 
-### Lint do código
+### Lint the Code
 
-Para verificar o estilo do código com o **flake8**, execute:
+To check code style with **flake8**, run:
 
 ```bash
 make lint
 ```
 
-### Formatar o código
+### Format the Code
 
-Para formatar o código de acordo com as convenções de estilo usando **black**, execute:
+To format the code according to style conventions using **black**, run:
 
 ```bash
 make format
 ```
 
-### Rodar os testes
+### Run Tests
 
-Para rodar os testes do projeto usando **pytest**, execute:
+To run project tests using **pytest**, run:
 
 ```bash
 make test
 ```
 
-### Build do Docker Compose
+### Build Docker Compose
 
-Se houver mudanças nos arquivos de configuração e você quiser fazer o build do container do WireMock, execute:
+If there are changes in the configuration files and you want to rebuild the WireMock container, run:
 
 ```bash
 make docker-build
 ```
 
-### Logs do WireMock
+### WireMock Logs
 
-Para ver os logs do container do WireMock em tempo real, execute:
+To see the logs of the WireMock container in real-time, run:
 
 ```bash
 make docker-logs
@@ -210,46 +210,46 @@ make docker-logs
 
 ### Playground
 
-Para testar a execução do projeto e ver exemplos de uso no **playground**, execute:
+To test the project execution and see usage examples in the **playground**, run:
 
 ```bash
 make play
 ```
 
-## Publicação da Biblioteca no PyPI
+## Publishing the Library to PyPI
 
-### Instalar as dependências necessárias para a publicação
+### Install the required dependencies for publishing
 
-Execute o comando abaixo para instalar as dependências de build e upload para o PyPI:
+Run the following command to install build and upload dependencies for PyPI:
 
 ```bash
 pip install build twine
 ```
 
-### Gerar os arquivos de distribuição
+### Generate Distribution Files
 
-Use o seguinte comando para gerar os arquivos de distribuição da biblioteca:
+Use the following command to generate the library distribution files:
 
 ```bash
 make build
 ```
 
-### Publicar no TestPyPI (ambiente de teste)
+### Publish to TestPyPI (Test Environment)
 
-Para publicar a biblioteca no ambiente de teste do PyPI, execute:
+To publish the library to TestPyPI (test environment), run:
 
 ```bash
 make publish-test
 ```
 
-### Publicar no PyPI oficial
+### Publish to Official PyPI
 
-Quando estiver pronto para publicar oficialmente no PyPI, execute:
+When ready to publish officially to PyPI, run:
 
 ```bash
 make publish
 ```
 
-## Contribuindo
+## Contributing
 
-Contribuições são bem-vindas! Por favor, abra uma issue ou envie um pull request.
+Contributions are welcome! Please open an issue or submit a pull request.
