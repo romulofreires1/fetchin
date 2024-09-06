@@ -3,7 +3,7 @@ from http_utils.fetcher.fetcher import Fetcher
 from prometheus_client import start_http_server
 import time
 
-logger = CustomLogger()
+logger = CustomLogger(extra_params={"app_name": "MyApp", "environment": "dev"})
 
 def linear_backoff(attempt: int):
     return attempt * 2
@@ -28,6 +28,6 @@ if __name__ == "__main__":
             response = fetcher.get("http://localhost:8080/api/example")
             print(response.json())
         except Exception as e:
-            logger.error(f"Error during fetch: {e}")
+            logger.error("Error during fetch", extra={"error": str(e)})
         
         time.sleep(10)
