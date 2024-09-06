@@ -1,3 +1,4 @@
 flake8
 black
-
+pybreaker==1.2.0
+requests==2.32.3

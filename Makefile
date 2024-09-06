@@ -21,3 +21,6 @@ docker-build:
 
 docker-logs:
 	docker-compose logs -f
+
+play:
+	python playground.py 

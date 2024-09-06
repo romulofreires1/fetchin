@@ -101,6 +101,64 @@ Para derrubar a API mock e parar o container, execute:
 make docker-down
 ```
 
+## Comandos adicionais no Makefile
+
+### Instalar dependências
+
+Para instalar as dependências do projeto, execute:
+
+```bash
+make install
+```
+
+### Lint do código
+
+Para verificar o estilo do código com o **flake8**, execute:
+
+```bash
+make lint
+```
+
+### Formatar o código
+
+Para formatar o código de acordo com as convenções de estilo usando **black**, execute:
+
+```bash
+make format
+```
+
+### Rodar os testes
+
+Para rodar os testes do projeto usando **pytest**, execute:
+
+```bash
+make test
+```
+
+### Build do Docker Compose
+
+Se houver mudanças nos arquivos de configuração e você quiser fazer o build do container do WireMock, execute:
+
+```bash
+make docker-build
+```
+
+### Logs do WireMock
+
+Para ver os logs do container do WireMock em tempo real, execute:
+
+```bash
+make docker-logs
+```
+
+### Playground
+
+Para testar a execução do projeto e ver exemplos de uso no **playground**, execute:
+
+```bash
+make play
+```
+
 ## Contribuindo
 
 Contribuições são bem-vindas! Por favor, abra uma issue ou envie um pull request.
