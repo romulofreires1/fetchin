@@ -3,3 +3,4 @@ black
 pybreaker==1.2.0
 requests==2.32.3
 prometheus-client==0.20.0
+pytest==8.3.2

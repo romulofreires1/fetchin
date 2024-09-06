@@ -8,7 +8,7 @@ format:
 	black http_utils
 
 test:
-	pytest tests/
+	pytest -v -s tests/
 
 docker-up:
 	docker-compose up -d
