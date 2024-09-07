@@ -1,1 +1,3 @@
-# Initialization of the logging module
+from .logger import CustomLogger
+
+__all__ = ["CustomLogger"]

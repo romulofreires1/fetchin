@@ -35,9 +35,7 @@ pip install fetchin
 ### Basic Example with Prometheus (default implementation)
 
 ```python
-from src.fetchin.logging.logger import CustomLogger
-from src.fetchin.fetcher.fetcher import Fetcher
-from src.fetchin.metrics.prometheus_metrics import PrometheusMetrics
+from fetchin import Fetcher, CustomLogger, PrometheusMetrics
 
 
 logger = CustomLogger()
@@ -67,9 +65,7 @@ except Exception as e:
 You can also provide your own metrics implementation. Simply implement the `MetricsInterface`.
 
 ```python
-from src.fetchin.logging.logger import CustomLogger
-from src.fetchin.metrics.metrics_interface import MetricsInterface
-from src.fetchin.fetcher.fetcher import Fetcher
+from fetchin import Fetcher, CustomLogger, MetricsInterface
 
 class CustomMetrics(MetricsInterface):
     def track_request(self, method: str, status_code: int, response_time: float):

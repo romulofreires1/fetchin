@@ -1,9 +1,7 @@
-from src.fetchin.logging.logger import CustomLogger
-from src.fetchin.fetcher.fetcher import Fetcher
+from src.fetchin import Fetcher, CustomLogger, PrometheusMetrics
 from prometheus_client import start_http_server
-import time
 
-from src.fetchin.metrics.prometheus_metrics import PrometheusMetrics
+import time
 
 logger = CustomLogger(extra_params={"app_name": "MyApp", "environment": "dev"})
 
