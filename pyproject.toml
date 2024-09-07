@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 name = "fetchin"  # O nome da sua biblioteca no PyPI
-version = "0.1.1"
+version = "0.1.0"
 description = "Biblioteca para lidar com requisições HTTP com circuit breaker, logs e métricas."
 authors = [
     { name = "Rômulo Freires"}
