@@ -26,6 +26,18 @@ jobs:
           source venv/bin/activate
           pip install build twine
 
+      - name: Update version for TestPyPI
+        run: |
+          # Get the current version from pyproject.toml
+          current_version=$(grep "version = " pyproject.toml | cut -d'"' -f2)
+          # Generate a random suffix (timestamp or random number)
+          random_suffix=$(date +%s)  # You can also use $RANDOM for a random number
+          # Update the version with the random suffix
+          new_version="${current_version}-test.${random_suffix}"
+          # Replace the version in pyproject.toml
+          sed -i "s/version = \"$current_version\"/version = \"$new_version\"/" pyproject.toml
+          echo "New version for TestPyPI: $new_version"
+
       - name: Build package
         run: |
           source venv/bin/activate
