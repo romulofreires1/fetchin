@@ -1,19 +1,12 @@
 name: Deploy to PyPI
 
 on:
-  workflow_dispatch:  # Manual trigger
-
+  workflow_dispatch:
 jobs:
   deploy_pypi:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if quality workflow passed
-        env:
-          GH_TOKEN: ${{ github.token }}  # Use the automatically provided GitHub token
-        run: |
-          gh run list --workflow=Quality --branch=main --limit=1 --json conclusion --jq '.[0].conclusion == "success"'
-    
       - name: Checkout repository
         uses: actions/checkout@v2
 

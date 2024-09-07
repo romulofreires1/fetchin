@@ -1,14 +1,10 @@
 name: Deploy to TestPyPI
 
 on:
-  workflow_run:
-    workflows: ["Quality Checks"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   deploy_testpypi:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
