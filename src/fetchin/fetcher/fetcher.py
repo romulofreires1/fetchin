@@ -17,106 +17,111 @@ class Fetcher:
     ):
         self.label = label
         self.logger = logger
+        self.metrics = metrics
         self.max_retries = max_retries
 
-        self.metrics = metrics if metrics else None
+        self.circuit_breaker = self._initialize_circuit_breaker(label, circuit_config)
 
-        default_circuit_config = {
+    def _initialize_circuit_breaker(self, label: str, circuit_config: dict):
+        default_config = {
             "fail_max": 3,
             "reset_timeout": 60,
         }
 
         if circuit_config:
-            default_circuit_config.update(circuit_config)
+            default_config.update(circuit_config)
 
         if label not in Fetcher.circuit_breakers:
             Fetcher.circuit_breakers[label] = pybreaker.CircuitBreaker(
-                fail_max=default_circuit_config["fail_max"],
-                reset_timeout=default_circuit_config["reset_timeout"],
+                fail_max=default_config["fail_max"],
+                reset_timeout=default_config["reset_timeout"],
                 state_storage=pybreaker.CircuitMemoryStorage(
                     state=pybreaker.STATE_CLOSED
                 ),
             )
 
-        self.circuit_breaker = Fetcher.circuit_breakers[label]
+        return Fetcher.circuit_breakers[label]
 
-    def default_backoff_strategy(self, attempt: int):
-        return 2**attempt
-
-    def _log_info(self, message: str, extra=None):
+    def _log(self, level: str, message: str, extra=None):
         if self.logger:
-            self.logger.info(message, extra=extra)
+            log_method = getattr(self.logger, level, None)
+            if log_method:
+                log_method(message, extra=extra)
 
-    def _log_error(self, message: str, extra=None):
-        if self.logger:
-            self.logger.error(message, extra=extra)
-
-    def _track_request(self, method: str, status_code: int, response_time: float):
+    def _track(
+        self,
+        method: str,
+        status_code: int = None,
+        response_time: float = None,
+        is_retry: bool = False,
+    ):
         if self.metrics:
-            self.metrics.track_request(method, status_code, response_time)
+            if is_retry:
+                self.metrics.track_retry(method)
+            else:
+                self.metrics.track_request(method, status_code, response_time)
 
-    def _track_retry(self, method: str):
-        if self.metrics:
-            self.metrics.track_retry(method)
-
-    def _handle_request(self, method: str, url: str, **kwargs):
-        self._log_info(
-            f"{method} to URL: {url}", extra={"url": url, "fetcher_label": self.label}
-        )
-        start_time = time.time()
-        attempt = 0
+    def _perform_request_with_retries(self, method: str, url: str, **kwargs):
+        attempt, start_time = 0, time.time()
 
         while attempt < self.max_retries:
             attempt += 1
             try:
-                if attempt > 1:
-                    self._track_retry(method)
-
                 response = self.circuit_breaker.call(
                     requests.request, method, url, **kwargs
                 )
                 response_time = time.time() - start_time
-                self._log_info(
-                    f"Response status: {response.status_code}",
+
+                self._log(
+                    "info",
+                    f"Response received: {response.status_code}",
                     extra={
                         "url": url,
-                        "fetcher_label": self.label,
                         "status_code": response.status_code,
+                        "fetcher_label": self.label,
                     },
                 )
-                self._track_request(method, response.status_code, response_time)
+                self._track(method, response.status_code, response_time)
 
                 if self.circuit_breaker.current_state == pybreaker.STATE_HALF_OPEN:
                     self.circuit_breaker.close()
 
                 return response
             except pybreaker.CircuitBreakerError as e:
-                self._log_error(
+                self._log(
+                    "error",
                     f"Circuit breaker open: {e}",
-                    extra={
-                        "url": url,
-                        "fetcher_label": self.label,
-                        "error_message": str(e),
-                    },
+                    extra={"url": url, "error_message": str(e)},
                 )
-                self._track_request(method, 500, 0)
+                self._track(method, status_code=500, response_time=0)
                 raise e
             except Exception as e:
-                self._log_error(
+                self._log(
+                    "error",
                     f"Attempt {attempt} failed: {e}",
-                    extra={
-                        "url": url,
-                        "fetcher_label": self.label,
-                        "error_message": str(e),
-                    },
+                    extra={"url": url, "error_message": str(e)},
                 )
 
                 if self.circuit_breaker.current_state == pybreaker.STATE_HALF_OPEN:
                     self.circuit_breaker.open()
 
-                if attempt == self.max_retries:
+                if attempt < self.max_retries:
+                    # Track retry attempt
+                    self._track(method, is_retry=True)
+                    time.sleep(self.default_backoff_strategy(attempt))
+                else:
                     raise e
-                time.sleep(self.default_backoff_strategy(attempt))
+
+    def _handle_request(self, method: str, url: str, **kwargs):
+        self._log(
+            "info",
+            f"{method} request to {url}",
+            extra={"url": url, "fetcher_label": self.label},
+        )
+        return self._perform_request_with_retries(method, url, **kwargs)
+
+    def default_backoff_strategy(self, attempt: int):
+        return 2**attempt
 
     def get(self, url: str, **kwargs):
         return self._handle_request("GET", url, **kwargs)
