@@ -7,7 +7,7 @@ where = ["src"]
 
 [project]
 name = "fetchin"  # The name of your library on PyPI
-version = "0.1.1"
+version = "0.1.0"
 description = "Library for handling HTTP requests with circuit breaker, logs, and metrics."
 authors = [
     { name = "Rômulo Freires"}
