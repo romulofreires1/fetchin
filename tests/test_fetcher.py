@@ -23,6 +23,36 @@ class TestFetcher(unittest.TestCase):
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
+    @patch('requests.request')
+    def test_get_with_timeout_and_headers(self, mock_request):
+        fetcher = Fetcher(
+            label="test_get_with_timeout", 
+            logger=self.logger, 
+            metrics=self.metrics, 
+            circuit_config=self.circuit_config
+        )
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"data": "test"}
+        mock_request.return_value = mock_response
+
+        response = fetcher.get(
+            "http://localhost:8080/api/example", 
+            timeout=5, 
+            headers={"Authorization": "Bearer token"}
+        )
+
+        mock_request.assert_called_once_with(
+            "GET", 
+            "http://localhost:8080/api/example", 
+            timeout=5, 
+            headers={"Authorization": "Bearer token"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"data": "test"})
+
     
     @patch('requests.request')
     def test_circuit_sharing_between_fetchers(self, mock_request):

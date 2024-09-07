@@ -1,4 +1,3 @@
-
 # fetchin
 
 **fetchin** is an efficient library for handling HTTP requests in Python. It provides a custom logger to monitor HTTP traffic, a metrics model to track request performance, and a fetcher to simplify HTTP requests. This library is ideal for developers who want greater control and visibility over their HTTP requests and performance metrics.
@@ -36,7 +35,6 @@ pip install fetchin
 
 ```python
 from fetchin import Fetcher, CustomLogger, PrometheusMetrics
-
 
 logger = CustomLogger()
 
@@ -86,6 +84,27 @@ try:
 except Exception as e:
     logger.error(f"Error during fetch: {e}")
 ```
+
+### Passing Additional Options like Timeout and Headers
+
+With the new `Fetcher` update, you can pass additional options like `timeout`, `headers`, or any other `requests` configuration directly in the request call.
+
+```python
+fetcher = Fetcher(label="api-service", logger=logger, metrics=PrometheusMetrics())
+
+# Example using timeout and custom headers for a GET request
+try:
+    response = fetcher.get(
+        "http://localhost:8080/api/example",
+        timeout=10,
+        headers={"Authorization": "Bearer token"}
+    )
+    print(response.json())
+except Exception as e:
+    logger.error(f"Error during fetch: {e}")
+```
+
+You can use `kwargs` to pass any valid argument supported by the `requests` library.
 
 ## Setting up the Virtual Environment
 
@@ -211,16 +230,6 @@ To test the project execution and see usage examples in the **playground**, run:
 ```bash
 make play
 ```
-
-### Generate Distribution Files
-
-Use the following command to generate the library distribution files:
-
-```bash
-make build
-```
-
-
 
 ## Contributing
 

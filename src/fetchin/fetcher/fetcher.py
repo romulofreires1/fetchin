@@ -118,17 +118,17 @@ class Fetcher:
                     raise e
                 time.sleep(self.default_backoff_strategy(attempt))
 
-    def get(self, url: str):
-        return self._handle_request("GET", url)
+    def get(self, url: str, **kwargs):
+        return self._handle_request("GET", url, **kwargs)
 
-    def post(self, url: str, data: dict):
-        return self._handle_request("POST", url, json=data)
+    def post(self, url: str, data: dict = None, **kwargs):
+        return self._handle_request("POST", url, json=data, **kwargs)
 
-    def delete(self, url: str):
-        return self._handle_request("DELETE", url)
+    def delete(self, url: str, **kwargs):
+        return self._handle_request("DELETE", url, **kwargs)
 
-    def put(self, url: str, data: dict):
-        return self._handle_request("PUT", url, json=data)
+    def put(self, url: str, data: dict = None, **kwargs):
+        return self._handle_request("PUT", url, json=data, **kwargs)
 
-    def patch(self, url: str, data: dict):
-        return self._handle_request("PATCH", url, json=data)
+    def patch(self, url: str, data: dict = None, **kwargs):
+        return self._handle_request("PATCH", url, json=data, **kwargs)
