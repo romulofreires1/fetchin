@@ -34,8 +34,8 @@ jobs:
           random_suffix=$(date +%s)  # You can also use $RANDOM for a random number
           # Update the version with the random suffix
           new_version="${current_version}-test.${random_suffix}"
-          # Replace the version in pyproject.toml
-          sed -i "s/version = \"$current_version\"/version = \"$new_version\"/" pyproject.toml
+          # Replace the version in pyproject.toml using | as the delimiter
+          sed -i "s|version = \"$current_version\"|version = \"$new_version\"|" pyproject.toml
           echo "New version for TestPyPI: $new_version"
 
       - name: Build package
