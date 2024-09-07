@@ -20,27 +20,33 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install build and twine
         run: |
           python -m venv venv
           source venv/bin/activate
-          pip install build toml twine
+          pip install build twine
 
       - name: Update version for TestPyPI
         run: |
-          random_suffix=$(date +%s)  # Use a timestamp as a suffix
-          python -c "
-import toml
-with open('pyproject.toml', 'r+') as f:
-    data = toml.load(f)
-    current_version = data['project']['version']
-    new_version = f'{current_version}-test.{random_suffix}'
-    data['project']['version'] = new_version
-    f.seek(0)
-    toml.dump(data, f)
-    f.truncate()
-print(f'Updated version: {new_version}')
-"
+          random_suffix=$(date +%s)
+          echo "
+import re
+
+pyproject_path = 'pyproject.toml'
+
+with open(pyproject_path, 'r') as file:
+    content = file.read()
+
+# Find the current version and add a random suffix to it
+new_content = re.sub(r'(version = \")([^\"]+)(\")', r'\\1\\2-test.${random_suffix}\\3', content)
+
+# Write the updated content back to the file
+with open(pyproject_path, 'w') as file:
+    file.write(new_content)
+
+print(f'Updated version with suffix: {random_suffix}')
+" > update_version.py
+          python update_version.py
 
       - name: Build package
         run: |
