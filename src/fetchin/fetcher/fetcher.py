@@ -1,7 +1,7 @@
 import requests
 import pybreaker
 import time
-from fetchin.metrics.metrics_interface import MetricsInterface
+from ..metrics import MetricsInterface
 
 
 class Fetcher:
